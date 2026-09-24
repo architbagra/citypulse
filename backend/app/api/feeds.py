@@ -24,6 +24,16 @@ MOCK_FEEDS = [
     }
 ]
 
+MOCK_DEGRADATION = [
+  {
+    "phase": "PHASE 1",
+    "title": "Circuit Breaker Socket Isolation",
+    "status": "COMPLETED",
+    "time": "13:38:12 IST",
+    "detail": "Detected 3 consecutive HTTP 504 timeouts from JCTSL GTFS server."
+  }
+]
+
 @router.get("/feeds", response_model=List[CivicFeed])
 async def get_feeds():
     db = get_database()
@@ -34,3 +44,10 @@ async def get_feeds():
     feeds_cursor = db.feeds.find({})
     feeds = await feeds_cursor.to_list(length=100)
     return [CivicFeed(**feed) for feed in feeds]
+
+@router.get("/feeds/degradation")
+async def get_degradation():
+    db = get_database()
+    if await db.degradation.count_documents({}) == 0:
+        await db.degradation.insert_many(MOCK_DEGRADATION)
+    return await db.degradation.find({}, {"_id": 0}).to_list(length=100)

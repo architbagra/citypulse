@@ -14,15 +14,18 @@ All notable changes made to the backend by Member 2 (guptaanuj10) on the `featur
   - Created `app/database/mongodb.py` utilizing `motor` to establish an asynchronous connection with MongoDB Atlas.
   - Added a lifespan context manager in `app/main.py` to seamlessly handle MongoDB connections on server startup and shutdown.
 - **Data Models (Pydantic):** Mapped the frontend TypeScript shared interfaces (`src/types/index.ts`) directly to Python data models:
-  - `CivicEvent` (`app/models/civic_event.py`)
+  - `CivicEvent` (`app/models/civic_event.py`) - **Updated with full nested sub-schemas** (`StreamTelemetry`, `DiagnosticStep`, `BayesianHypothesis`).
   - `SectorZone` (`app/models/zones.py`)
   - `CivicFeed` (`app/models/feeds.py`)
   - `ReplayMilestone` (`app/models/replay.py`)
 - **API Endpoints:** Implemented the core REST API routes. These endpoints automatically seed the MongoDB Atlas collections with the initial mock data if the database is empty, and then return the data directly from MongoDB:
-  - `GET /api/events` & `POST /api/events`
+  - `GET /api/events` & `POST /api/events` (Seeds `PRIMARY_ACTIVE_EVENT`)
   - `GET /api/zones`
-  - `GET /api/feeds`
+  - `GET /api/feeds` & `GET /api/feeds/degradation`
   - `GET /api/replay`
   - `GET /api/relationships/causes`
+  - `GET /api/relationships/empirical`
+  - `GET /api/relationships/historical`
+  - `GET /api/relationships/recovery`
 - **CORS Setup:** Configured CORS middleware in `app/main.py` to allow cross-origin requests from the React frontend.
 - **Git Ignore:** Appended Python-specific ignores (`__pycache__/`, `*.pyc`, `.env`) to the root `.gitignore` file.
