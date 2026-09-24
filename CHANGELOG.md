@@ -2,6 +2,14 @@
 
 All notable changes made to the backend by Member 2 (guptaanuj10) on the `feature/backend` branch.
 
+## [Unreleased] - Civic Intelligence Engine (Member 3)
+### Added
+- **Intelligence Engine:** Created standalone Python worker in `intelligence/` directory.
+- **Data Adapters:** Implemented synthetic real-time data adapters for weather (`weather_api.py`), traffic (`traffic_api.py`), and citizen complaints (`citizen_reports.py`).
+- **Core Correlation:** Wrote the anomaly detection logic (`core/correlation.py`) to synthesize spatial/temporal data and generate `CivicEvent` anomalies dynamically based on threshold breaches.
+- **Database Insertion:** Configured the engine loop (`main.py`) to connect to MongoDB and push live anomalies directly into the `events` collection.
+- **Orchestration:** Added the intelligence worker to `docker-compose.yml`.
+
 ## [Unreleased] - Integration & DevOps (Member 4)
 ### Added
 - **Dockerization:** Added `backend/Dockerfile` and root `Dockerfile` (React) for containerization.
