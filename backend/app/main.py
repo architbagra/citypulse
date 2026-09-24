@@ -1,7 +1,16 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from contextlib import asynccontextmanager
+from app.database.mongodb import connect_to_mongo, close_mongo_connection
 
-app = FastAPI(title="CityPulse Backend API")
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    await connect_to_mongo()
+    yield
+    await close_mongo_connection()
+
+app = FastAPI(title="CityPulse Backend API", lifespan=lifespan)
+
 
 # Setup CORS for frontend communication
 app.add_middleware(
