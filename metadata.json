@@ -1,0 +1,6 @@
+{
+  "name": "CityPulse — Live Civic Intelligence Platform",
+  "description": "Cross-sensor telemetry, spatial-temporal concordance engine, and real-time civic event intelligence.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
