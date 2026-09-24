@@ -2,7 +2,14 @@
 
 All notable changes made to the backend by Member 2 (guptaanuj10) on the `feature/backend` branch.
 
-## [Unreleased] - Initial Backend Setup
+## [Unreleased] - Integration & DevOps (Member 4)
+### Added
+- **Dockerization:** Added `backend/Dockerfile` and root `Dockerfile` (React) for containerization.
+- **Docker Compose:** Added `docker-compose.yml` to orchestrate both services together.
+- **Testing Suite:** Set up Pytest with `httpx` and `asgi-lifespan` in `backend/tests/test_api.py` to validate API endpoints.
+- **CI Pipeline:** Added GitHub Actions workflow `.github/workflows/ci.yml` for automated frontend builds and backend tests.
+
+## [Unreleased] - Initial Backend Setup (Member 2)
 
 ### Added
 - **Backend Architecture:** Created the standard Python FastAPI directory structure under `backend/app/` (`api/`, `models/`, `services/`, `database/`).
