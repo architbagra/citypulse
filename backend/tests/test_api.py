@@ -11,8 +11,9 @@ import asgi_lifespan
 @pytest.fixture
 async def async_client():
     from asgi_lifespan import LifespanManager
+    from httpx import ASGITransport
     async with LifespanManager(app):
-        async with AsyncClient(app=app, base_url="http://test") as client:
+        async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
             yield client
 
 @pytest.mark.asyncio

@@ -19,9 +19,9 @@ interface CityPulseContextType {
   toggleTheme: () => void;
   // Core Data
   sectors: SectorZone[];
-  selectedZone: SectorZone | null;
+  selectedZone: SectorZone;
   setSelectedZoneId: (id: string) => void;
-  activeEvent: CivicEvent | null;
+  activeEvent: CivicEvent;
   // Map State
   civicLensActive: boolean;
   setCivicLensActive: (active: boolean) => void;
@@ -34,7 +34,7 @@ interface CityPulseContextType {
   setIsReplayPlaying: (playing: boolean) => void;
   replaySpeed: 1 | 2 | 5;
   setReplaySpeed: (speed: 1 | 2 | 5) => void;
-  currentReplayMilestone: ReplayMilestone | null;
+  currentReplayMilestone: ReplayMilestone;
   replayTimeline: ReplayMilestone[];
   resetReplayToLive: () => void;
   // Feeds
@@ -247,9 +247,9 @@ export const CityPulseProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         theme,
         toggleTheme,
         sectors,
-        selectedZone,
+        selectedZone: selectedZone as SectorZone,
         setSelectedZoneId,
-        activeEvent,
+        activeEvent: activeEvent as CivicEvent,
         civicLensActive,
         setCivicLensActive,
         lensPosition,
@@ -260,7 +260,7 @@ export const CityPulseProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         setIsReplayPlaying,
         replaySpeed,
         setReplaySpeed,
-        currentReplayMilestone,
+        currentReplayMilestone: currentReplayMilestone as ReplayMilestone,
         replayTimeline,
         resetReplayToLive,
         feeds,
