@@ -1,11 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useCityPulse } from '../../context/CityPulseContext';
-import {
-  SIGNAL_COUPLINGS,
-  EMPIRICAL_VS_SYNTHETIC_ROWS,
-  HISTORICAL_JAIPUR_ANALOGS,
-  RECOVERY_TRAJECTORY_POINTS
-} from '../../data/mock/relationships';
+import { CityPulseAPI } from '../../api/client';
 import { CorrelationInspectorModal } from '../modals/CorrelationInspectorModal';
 import {
   GitMerge,
@@ -13,12 +8,36 @@ import {
   History,
   TrendingDown,
   Activity,
-  Maximize2
+  Maximize2,
+  Network, 
+  ArrowRight, 
+  Zap, 
+  Target, 
+  Beaker, 
+  Clock, 
+  GitCommit, 
+  Settings2, 
+  BarChart2
 } from 'lucide-react';
 
 export const RelationshipsView: React.FC = () => {
   const [isInspectorOpen, setIsInspectorOpen] = useState(false);
   const { activeEvent } = useCityPulse();
+  const [selectedCoupling, setSelectedCoupling] = useState<string | null>(null);
+
+  const [SIGNAL_COUPLINGS, setSignalCouplings] = useState<any[]>([]);
+  const [EMPIRICAL_VS_SYNTHETIC_ROWS, setEmpirical] = useState<any[]>([]);
+  const [HISTORICAL_JAIPUR_ANALOGS, setHistorical] = useState<any[]>([]);
+  const [RECOVERY_TRAJECTORY_POINTS, setRecovery] = useState<any[]>([]);
+
+  useEffect(() => {
+    CityPulseAPI.getRelationshipsCauses().then(data => setSignalCouplings(data)).catch(console.error);
+    CityPulseAPI.getRelationshipsEmpirical().then(data => setEmpirical(data)).catch(console.error);
+    CityPulseAPI.getRelationshipsHistorical().then(data => setHistorical(data)).catch(console.error);
+    CityPulseAPI.getRelationshipsRecovery().then(data => setRecovery(data)).catch(console.error);
+  }, []);
+
+  const currentCouplingData = SIGNAL_COUPLINGS.find(c => c.id === selectedCoupling);
 
   return (
     <div className="space-y-6 animate-in fade-in duration-300">
@@ -28,69 +47,61 @@ export const RelationshipsView: React.FC = () => {
       />
 
       {/* Protocol 07 Header Banner (Archival White Card with Print Shadow) */}
-      <div className="bg-[#ffffff] border border-[#c2c8c4]/60 rounded-[0.25rem] p-6 lg:p-7 shadow-print flex flex-col md:flex-row md:items-center justify-between gap-5 relative">
-        <div className="absolute top-2 right-2 font-mono text-[10px] text-[#737875]/30 select-none">+</div>
-        <div className="absolute bottom-2 left-2 font-mono text-[10px] text-[#737875]/30 select-none">+</div>
-
-        <div>
-          <div className="flex items-center space-x-2 font-sans text-[11px] text-[#52606f] uppercase tracking-[0.08em] font-semibold mb-1.5">
-            <GitMerge className="w-4 h-4 text-[#7879f1]" />
-            <span>PROTOCOL 07 · CROSS-SENSOR TELEMETRY</span>
-            <span className="text-[#c2c8c4]">/</span>
-            <span>SPATIAL-TEMPORAL CONCORDANCE ENGINE</span>
+      <div className="bg-[#ffffff] border border-[#c2c8c4]/60 rounded-[0.25rem] p-5 flex items-center justify-between shadow-print">
+        <div className="flex items-center space-x-4">
+          <div className="p-2.5 bg-[#f0f5ee] border border-[#eaefe8] rounded-[0.25rem]">
+            <GitMerge className="w-5 h-5 text-[#3a4856]" />
           </div>
-          <h1 className="font-serif text-2xl md:text-3xl font-medium text-[#182923] tracking-tight">
-            Signal Relationships & Epistemic Bounds
-          </h1>
-          <p className="text-xs text-[#52606f] font-sans mt-1">
-            Confluence Node: Conduit Lock Alpha · Ashok Nagar & M.I. Road Corridor (Zone A)
-          </p>
+          <div>
+            <div className="font-sans text-[11px] text-[#52606f] uppercase tracking-[0.08em] font-semibold mb-0.5">
+              Protocol 07: Empirical Causality Matrix
+            </div>
+            <h1 className="font-serif text-xl font-medium text-[#182923]">
+              Cross-Modal Signal Concordance
+            </h1>
+          </div>
         </div>
-
         <button
           onClick={() => setIsInspectorOpen(true)}
-          className="h-10 px-5 rounded-[0.25rem] bg-[#182923] hover:bg-[#243b33] text-white font-sans text-xs font-medium tracking-[0.06em] uppercase flex items-center space-x-2 transition-all shrink-0 shadow-print focus:ring-2 focus:ring-[#7879f1] focus:ring-offset-2"
+          className="h-9 px-4 bg-[#182923] hover:bg-[#2b4138] text-white font-sans text-xs font-semibold rounded-[0.25rem] transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.1)] flex items-center space-x-2 border border-transparent focus:ring-2 focus:ring-[#7879f1] focus:ring-offset-1 focus:outline-none"
         >
-          <Maximize2 className="w-4 h-4" />
-          <span>EXPAND CORRELATION INSPECTOR</span>
+          <Maximize2 className="w-3.5 h-3.5 opacity-80" />
+          <span>Launch Causal Inspector</span>
         </button>
       </div>
 
-      {/* Scientific Covenant Pill Banner */}
-      <div className="p-5 bg-[#ffffff] border border-[#bfa15f]/40 rounded-[0.25rem] shadow-print flex items-start space-x-3.5 text-xs">
-        <ShieldAlert className="w-5 h-5 text-[#bfa15f] shrink-0 mt-0.5" />
-        <div className="space-y-1">
-          <div className="font-sans text-[#182923] font-bold uppercase tracking-[0.08em] text-[11px]">
-            SCIENTIFIC COVENANT: CORRELATION ≠ CAUSATION
+      {/* Causal Coupling Analysis */}
+      <div className="bg-[#ffffff] border border-[#c2c8c4]/60 rounded-[0.25rem] p-6 shadow-print">
+        <div className="flex items-center justify-between mb-6 border-b border-[#eaefe8] pb-4">
+          <div>
+            <h2 className="font-serif text-lg font-medium text-[#182923]">Primary Causal Couplings</h2>
+            <p className="text-xs text-[#52606f] font-sans mt-1">
+              Topographic constraints translating atmospheric inputs into hydrodynamic traffic failure.
+            </p>
           </div>
-          <p className="text-[#424845] font-sans leading-relaxed text-[13px]">
-            CityPulse quantifies mathematical coincidence across independent municipal streams. High correlation (89.4%) signals synchronized municipal distress, but causal attribution (e.g., choked catch-basins vs. sheer cloudburst volume) requires physical on-site audit.
-          </p>
-        </div>
-      </div>
-
-      {/* 4-Signal Coupling Breakdown (Cards with 1px border and print shadows) */}
-      <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <h2 className="font-serif text-lg font-medium text-[#182923] flex items-center space-x-2">
-            <Activity className="w-4 h-4 text-[#7879f1]" />
-            <span>Four-Signal Coupling Breakdown</span>
-          </h2>
-          <span className="font-sans text-xs text-[#52606f]">
-            Composite Overlap: <strong className="text-[#8a2d2d] font-mono">89.4%</strong>
-          </span>
+          <div className="flex items-center space-x-2 text-xs font-sans text-[#52606f] bg-[#f0f5ee] px-3 py-1.5 rounded-[0.25rem] border border-[#dfe4dd]">
+            <Activity className="w-3.5 h-3.5 text-[#3a4856]" />
+            <span>Bayesian Evidence Active</span>
+          </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
-          {SIGNAL_COUPLINGS.map(coup => (
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+          {SIGNAL_COUPLINGS.map((coup) => (
             <div
               key={coup.id}
-              className="bg-[#ffffff] border border-[#c2c8c4]/60 rounded-[0.25rem] p-6 space-y-4 shadow-print hover:border-[#182923]/30 transition-all flex flex-col justify-between"
+              onClick={() => setSelectedCoupling(coup.id)}
+              className={`p-5 rounded-[0.25rem] border transition-all cursor-pointer ${
+                selectedCoupling === coup.id
+                  ? 'border-[#7879f1] bg-[#f7f9f6] shadow-sm'
+                  : 'border-[#eaefe8] bg-[#fdfdfc] hover:border-[#c2c8c4] hover:bg-[#fcfdfc]'
+              }`}
             >
-              <div>
-                <div className="flex items-center justify-between text-[11px] font-sans mb-2">
-                  <span className="font-mono text-[#52606f] font-semibold">{coup.code}</span>
-                  <span className="h-5 px-2 rounded-full text-[9px] font-sans uppercase tracking-[0.06em] font-bold bg-[#eaefe8] text-[#182923] border border-[#182923]/15 flex items-center">
+              <div className="mb-4">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="h-5 px-2 rounded-[0.25rem] bg-[#f0f5ee] border border-[#dfe4dd] text-[#3a4856] font-mono text-[10px] font-bold flex items-center">
+                    {coup.code}
+                  </span>
+                  <span className="font-sans text-[10px] uppercase font-bold tracking-wider text-[#7879f1]">
                     {coup.couplingStrength}
                   </span>
                 </div>
@@ -128,7 +139,6 @@ export const RelationshipsView: React.FC = () => {
       </div>
 
       {/* Empirical Ground Truth vs. Synthetic Causal Inference Table */}
-      {/* Design.md List & Data Records: strictly 1px horizontal hairlines, no alternating banded stripes, hover shifts to #f7f9f6 with 2px left border in #7879f1 */}
       <div className="bg-[#ffffff] border border-[#c2c8c4]/60 rounded-[0.25rem] p-6 space-y-4 shadow-print">
         <div>
           <div className="font-sans text-[11px] text-[#52606f] uppercase tracking-[0.08em] font-semibold mb-1">
@@ -192,7 +202,7 @@ export const RelationshipsView: React.FC = () => {
             {HISTORICAL_JAIPUR_ANALOGS.map((analog, idx) => (
               <div key={idx} className="p-4 bg-[#f0f5ee] border border-[#c2c8c4]/60 rounded-[0.25rem] space-y-2">
                 <div className="flex items-center justify-between text-xs font-sans">
-                  <span className="text-[#182923] font-serif font-medium text-sm">{analog.date} · {analog.eventTitle}</span>
+                  <span className="text-[#182923] font-serif font-medium text-sm">{analog.date} — {analog.eventTitle}</span>
                   <span className="h-5 px-2 rounded-full bg-[#e1dfff] text-[#0a006b] font-mono text-[10px] font-bold flex items-center">
                     {analog.similarityScore}% MATCH
                   </span>

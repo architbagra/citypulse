@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useCityPulse } from '../../context/CityPulseContext';
-import { DEGRADATION_PROTOCOL_STEPS } from '../../data/mock/feeds';
+import { CityPulseAPI } from '../../api/client';
 import {
   Database,
   RefreshCw,
@@ -11,6 +11,11 @@ export const DataSourcesView: React.FC = () => {
   const { feeds, isProbingFeeds, probeFeedsNow, lastProbeTime } = useCityPulse();
   const [selectedFeedId, setSelectedFeedId] = useState<string>('feed-04');
   const [showPayload, setShowPayload] = useState<boolean>(true);
+  const [DEGRADATION_PROTOCOL_STEPS, setDegradation] = useState<any[]>([]);
+
+  useEffect(() => {
+    CityPulseAPI.getFeedsDegradation().then(data => setDegradation(data)).catch(console.error);
+  }, []);
 
   const selectedFeed = feeds.find(f => f.id === selectedFeedId) || feeds[0];
 

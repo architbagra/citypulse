@@ -2,6 +2,12 @@
 
 All notable changes made to the backend by Member 2 (guptaanuj10) on the `feature/backend` branch.
 
+## [Unreleased] - Final UI Integration (Member 1)
+### Added
+- **API Integration:** Removed all local mock data dependencies (`src/data/mock/`) across the entire frontend.
+- **Dynamic Context:** Rewrote `CityPulseContext.tsx` to utilize `CityPulseAPI` React hooks, streaming live data directly from the backend into global state.
+- **View Migration:** Updated `RelationshipsView`, `DataSourcesView`, and `CorrelationInspectorModal` to fetch specialized tabular data arrays straight from the REST endpoints on mount.
+
 ## [Unreleased] - Integration & DevOps (Member 4)
 ### Added
 - **Dockerization:** Added `backend/Dockerfile` and root `Dockerfile` (React) for containerization.

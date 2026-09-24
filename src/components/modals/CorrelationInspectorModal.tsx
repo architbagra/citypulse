@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { SIGNAL_COUPLINGS } from '../../data/mock/relationships';
+import React, { useState, useEffect } from 'react';
+import { CityPulseAPI } from '../../api/client';
 import { X, GitMerge, CheckCircle2 } from 'lucide-react';
 
 interface CorrelationInspectorModalProps {
@@ -12,6 +12,13 @@ export const CorrelationInspectorModal: React.FC<CorrelationInspectorModalProps>
   onClose
 }) => {
   const [selectedPair, setSelectedPair] = useState<string>('pair-1');
+  const [SIGNAL_COUPLINGS, setSignalCouplings] = useState<any[]>([]);
+
+  useEffect(() => {
+    if (isOpen && SIGNAL_COUPLINGS.length === 0) {
+      CityPulseAPI.getRelationshipsCauses().then(data => setSignalCouplings(data)).catch(console.error);
+    }
+  }, [isOpen]);
 
   if (!isOpen) return null;
 
