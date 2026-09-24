@@ -3,3 +3,7 @@ uvicorn
 python-dotenv
 motor
 pydantic[email]
+pytest
+pytest-asyncio
+httpx
+asgi-lifespan
