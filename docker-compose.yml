@@ -19,3 +19,13 @@ services:
     environment:
       - MONGODB_URL=${MONGODB_URL}
       - DATABASE_NAME=${DATABASE_NAME:-citypulse}
+
+  intelligence:
+    build:
+      context: ./intelligence
+      dockerfile: Dockerfile
+    environment:
+      - MONGODB_URL=${MONGODB_URL}
+      - DATABASE_NAME=${DATABASE_NAME:-citypulse}
+    depends_on:
+      - backend
