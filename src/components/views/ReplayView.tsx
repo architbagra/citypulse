@@ -1,7 +1,6 @@
 import React from 'react';
 import { useCityPulse } from '../../context/CityPulseContext';
 import { CivicMap } from '../CivicMap';
-import { REPLAY_TIMELINE } from '../../data/mock/replay';
 import {
   Play,
   Pause,
@@ -23,6 +22,7 @@ export const ReplayView: React.FC = () => {
     replaySpeed,
     setReplaySpeed,
     currentReplayMilestone,
+    replayTimeline,
     resetReplayToLive,
     activeEvent,
     exportGeoJsonLedger
@@ -33,12 +33,12 @@ export const ReplayView: React.FC = () => {
   };
 
   const handleStepForward = () => {
-    setReplayIndex(Math.min(REPLAY_TIMELINE.length - 1, replayIndex + 1));
+    setReplayIndex(Math.min(replayTimeline.length - 1, replayIndex + 1));
   };
 
   const exportCsv = () => {
     const headers = ['Time', 'Rain_mm_h', 'Speed_km_h', 'Calls_181', 'Transit_km_h', 'Concordance_Pct', 'State', 'Notes'];
-    const rows = REPLAY_TIMELINE.map(m => [
+    const rows = replayTimeline.map(m => [
       m.time,
       m.precip,
       m.speed,
@@ -103,7 +103,7 @@ export const ReplayView: React.FC = () => {
 
             <button
               onClick={handleStepForward}
-              disabled={replayIndex === REPLAY_TIMELINE.length - 1}
+              disabled={replayIndex === replayTimeline.length - 1}
               className="p-2 text-[#52606f] hover:text-[#182923] disabled:opacity-30 transition-colors"
               title="Step forward 5 min"
             >
@@ -165,14 +165,14 @@ export const ReplayView: React.FC = () => {
           <input
             type="range"
             min={0}
-            max={REPLAY_TIMELINE.length - 1}
+            max={replayTimeline.length - 1}
             value={replayIndex}
             onChange={(e) => setReplayIndex(Number(e.target.value))}
             className="w-full h-2 bg-[#eaefe8] rounded-full appearance-none cursor-pointer accent-[#182923]"
           />
 
           <div className="flex justify-between items-start mt-2">
-            {REPLAY_TIMELINE.map((m, idx) => (
+            {replayTimeline.map((m, idx) => (
               <button
                 key={idx}
                 onClick={() => setReplayIndex(idx)}

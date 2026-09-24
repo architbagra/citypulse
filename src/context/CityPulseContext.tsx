@@ -1,19 +1,28 @@
 import React, { createContext, useContext, useState, useEffect, useMemo } from 'react';
-import { ViewMode, SectorZone, CivicEvent, CivicFeed, ReplayMilestone, MapLayerConfig } from '../types';
-import { JAIPUR_SECTORS } from '../data/mock/zones';
-import { PRIMARY_ACTIVE_EVENT } from '../data/mock/events';
-import { CIVIC_FEEDS } from '../data/mock/feeds';
-import { REPLAY_TIMELINE } from '../data/mock/replay';
+import { ViewMode, SectorZone, CivicEvent, ReplayMilestone, CivicFeed } from '../types';
+import { CityPulseAPI } from '../api/client';
+
+export interface MapLayerConfig {
+  cartography: boolean;
+  hydroPlume: boolean;
+  arterialFriction: boolean;
+  dispatches181: boolean;
+  conduitS04: boolean;
+  jul14Analog: boolean;
+}
 
 interface CityPulseContextType {
+  // Global
   viewMode: ViewMode;
   setViewMode: (mode: ViewMode) => void;
   theme: 'dark' | 'light';
   toggleTheme: () => void;
+  // Core Data
   sectors: SectorZone[];
   selectedZone: SectorZone;
-  setSelectedZoneId: (zoneId: string) => void;
+  setSelectedZoneId: (id: string) => void;
   activeEvent: CivicEvent;
+  // Map State
   civicLensActive: boolean;
   setCivicLensActive: (active: boolean) => void;
   lensPosition: { x: number; y: number; lat?: number; lng?: number } | null;
@@ -26,6 +35,7 @@ interface CityPulseContextType {
   replaySpeed: 1 | 2 | 5;
   setReplaySpeed: (speed: 1 | 2 | 5) => void;
   currentReplayMilestone: ReplayMilestone;
+  replayTimeline: ReplayMilestone[];
   resetReplayToLive: () => void;
   // Feeds
   feeds: CivicFeed[];
@@ -50,17 +60,23 @@ const CityPulseContext = createContext<CityPulseContextType | undefined>(undefin
 export const CityPulseProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [viewMode, setViewMode] = useState<ViewMode>('live');
   const [theme, setTheme] = useState<'dark' | 'light'>('light');
+  
+  // Data State
+  const [sectors, setSectors] = useState<SectorZone[]>([]);
+  const [activeEvent, setActiveEvent] = useState<CivicEvent | null>(null);
+  const [feeds, setFeeds] = useState<CivicFeed[]>([]);
+  const [replayTimeline, setReplayTimeline] = useState<ReplayMilestone[]>([]);
+  
   const [selectedZoneId, setSelectedZoneId] = useState<string>('sector-a');
   const [civicLensActive, setCivicLensActive] = useState<boolean>(true);
   const [lensPosition, setLensPosition] = useState<{ x: number; y: number; lat?: number; lng?: number } | null>(null);
 
   // Replay state
-  const [replayIndex, setReplayIndex] = useState<number>(REPLAY_TIMELINE.length - 3); // starts at 14:00 [SPIKE]
+  const [replayIndex, setReplayIndex] = useState<number>(0);
   const [isReplayPlaying, setIsReplayPlaying] = useState<boolean>(false);
   const [replaySpeed, setReplaySpeed] = useState<1 | 2 | 5>(1);
 
   // Feeds & Probing
-  const [feeds, setFeeds] = useState<CivicFeed[]>(CIVIC_FEEDS);
   const [isProbingFeeds, setIsProbingFeeds] = useState<boolean>(false);
   const [lastProbeTime, setLastProbeTime] = useState<string>('14:00:15 IST');
 
@@ -78,6 +94,17 @@ export const CityPulseProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const [isForensicModalOpen, setIsForensicModalOpen] = useState<boolean>(false);
   const [isMunicipalAlertModalOpen, setIsMunicipalAlertModalOpen] = useState<boolean>(false);
   const [alertNotification, setAlertNotification] = useState<string | null>(null);
+
+  // Fetch API Data on mount
+  useEffect(() => {
+    CityPulseAPI.getZones().then(data => setSectors(data)).catch(console.error);
+    CityPulseAPI.getEvents().then(data => setActiveEvent(data[0] || null)).catch(console.error);
+    CityPulseAPI.getFeeds().then(data => setFeeds(data)).catch(console.error);
+    CityPulseAPI.getReplay().then(data => {
+      setReplayTimeline(data);
+      if (data.length > 0) setReplayIndex(data.length - 3 >= 0 ? data.length - 3 : 0);
+    }).catch(console.error);
+  }, []);
 
   // Toggle theme class on document element
   useEffect(() => {
@@ -97,10 +124,10 @@ export const CityPulseProvider: React.FC<{ children: React.ReactNode }> = ({ chi
 
   // Replay playback loop
   useEffect(() => {
-    if (!isReplayPlaying) return;
+    if (!isReplayPlaying || replayTimeline.length === 0) return;
     const interval = setInterval(() => {
       setReplayIndex(prev => {
-        if (prev >= REPLAY_TIMELINE.length - 1) {
+        if (prev >= replayTimeline.length - 1) {
           setIsReplayPlaying(false);
           return prev;
         }
@@ -109,15 +136,17 @@ export const CityPulseProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     }, 2000 / replaySpeed);
 
     return () => clearInterval(interval);
-  }, [isReplayPlaying, replaySpeed]);
+  }, [isReplayPlaying, replaySpeed, replayTimeline.length]);
 
   const currentReplayMilestone = useMemo(() => {
-    return REPLAY_TIMELINE[replayIndex] || REPLAY_TIMELINE[0];
-  }, [replayIndex]);
+    if (replayTimeline.length === 0) return null;
+    return replayTimeline[replayIndex] || replayTimeline[0];
+  }, [replayIndex, replayTimeline]);
 
   const selectedZone = useMemo(() => {
-    return JAIPUR_SECTORS.find(s => s.id === selectedZoneId) || JAIPUR_SECTORS[0];
-  }, [selectedZoneId]);
+    if (sectors.length === 0) return null;
+    return sectors.find(s => s.id === selectedZoneId) || sectors[0];
+  }, [selectedZoneId, sectors]);
 
   const toggleMapLayer = (layerKey: keyof MapLayerConfig) => {
     setMapLayers(prev => ({
@@ -128,7 +157,9 @@ export const CityPulseProvider: React.FC<{ children: React.ReactNode }> = ({ chi
 
   const resetReplayToLive = () => {
     setIsReplayPlaying(false);
-    setReplayIndex(REPLAY_TIMELINE.length - 1);
+    if (replayTimeline.length > 0) {
+      setReplayIndex(replayTimeline.length - 1);
+    }
     setViewMode('live');
   };
 
@@ -165,17 +196,18 @@ export const CityPulseProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   };
 
   const exportGeoJsonLedger = () => {
+    if (!activeEvent || !selectedZone) return;
     const data = {
       type: 'FeatureCollection',
-      incident: PRIMARY_ACTIVE_EVENT.id,
+      incident: activeEvent.id,
       generatedAt: new Date().toISOString(),
       metadata: {
         zone: selectedZone.name,
-        concordanceScore: PRIMARY_ACTIVE_EVENT.concordanceScore,
+        concordanceScore: activeEvent.concordanceScore,
         confidenceModel: 'Bayesian Concordance v4.2',
         scientificCovenant: 'Correlation != Causation'
       },
-      features: JAIPUR_SECTORS.map(s => ({
+      features: sectors.map(s => ({
         type: 'Feature',
         geometry: {
           type: 'Point',
@@ -214,10 +246,10 @@ export const CityPulseProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         setViewMode,
         theme,
         toggleTheme,
-        sectors: JAIPUR_SECTORS,
-        selectedZone,
+        sectors,
+        selectedZone: selectedZone as SectorZone,
         setSelectedZoneId,
-        activeEvent: PRIMARY_ACTIVE_EVENT,
+        activeEvent: activeEvent as CivicEvent,
         civicLensActive,
         setCivicLensActive,
         lensPosition,
@@ -228,7 +260,8 @@ export const CityPulseProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         setIsReplayPlaying,
         replaySpeed,
         setReplaySpeed,
-        currentReplayMilestone,
+        currentReplayMilestone: currentReplayMilestone as ReplayMilestone,
+        replayTimeline,
         resetReplayToLive,
         feeds,
         isProbingFeeds,

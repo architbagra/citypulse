@@ -2,15 +2,11 @@
 
 All notable changes made to the backend by Member 2 (guptaanuj10) on the `feature/backend` branch.
 
-## [Unreleased] - Civic Intelligence Engine (Member 3)
+## [Unreleased] - Final UI Integration (Member 1)
 ### Added
-- **Intelligence Engine:** Created standalone Python worker in `intelligence/` directory.
-- **Data Adapters:** Implemented synthetic real-time data adapters for weather (`weather_api.py`), traffic (`traffic_api.py`), citizen complaints (`citizen_reports.py`), and public transit (`transit_api.py`).
-- **Data Normalization:** Added `core/normalizer.py` to standardize inbound adapter payloads into a canonical temporal schema.
-- **Feed Health Monitoring:** Implemented `FeedHealthMonitor` with Circuit Breaker logic that isolates failing feeds (like HTTP 504 transit failures) and writes degradation protocol events to MongoDB.
-- **Core Correlation:** Wrote the anomaly detection logic (`core/correlation.py`) to synthesize spatial/temporal data and dynamically generate explanations, evidence chains, and hypotheses.
-- **Database Insertion:** Configured the engine loop (`main.py`) to connect to MongoDB and push live anomalies directly into the `events` collection.
-- **Orchestration:** Added the intelligence worker to `docker-compose.yml`.
+- **API Integration:** Removed all local mock data dependencies (`src/data/mock/`) across the entire frontend.
+- **Dynamic Context:** Rewrote `CityPulseContext.tsx` to utilize `CityPulseAPI` React hooks, streaming live data directly from the backend into global state.
+- **View Migration:** Updated `RelationshipsView`, `DataSourcesView`, and `CorrelationInspectorModal` to fetch specialized tabular data arrays straight from the REST endpoints on mount.
 
 ## [Unreleased] - Integration & DevOps (Member 4)
 ### Added

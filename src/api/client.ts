@@ -35,7 +35,31 @@ export const CityPulseAPI = {
 
   getRelationshipsCauses: async (): Promise<any[]> => {
     const res = await fetch(`${API_BASE}/relationships/causes`);
-    if (!res.ok) throw new Error('Failed to fetch relationships');
+    if (!res.ok) throw new Error('Failed to fetch causes');
+    return res.json();
+  },
+
+  getRelationshipsEmpirical: async (): Promise<any[]> => {
+    const res = await fetch(`${API_BASE}/relationships/empirical`);
+    if (!res.ok) throw new Error('Failed to fetch empirical');
+    return res.json();
+  },
+
+  getRelationshipsHistorical: async (): Promise<any[]> => {
+    const res = await fetch(`${API_BASE}/relationships/historical`);
+    if (!res.ok) throw new Error('Failed to fetch historical');
+    return res.json();
+  },
+
+  getRelationshipsRecovery: async (): Promise<any[]> => {
+    const res = await fetch(`${API_BASE}/relationships/recovery`);
+    if (!res.ok) throw new Error('Failed to fetch recovery');
+    return res.json();
+  },
+
+  getFeedsDegradation: async (): Promise<any[]> => {
+    const res = await fetch(`${API_BASE}/feeds/degradation`);
+    if (!res.ok) throw new Error('Failed to fetch degradation steps');
     return res.json();
   }
 };
