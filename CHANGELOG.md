@@ -8,6 +8,10 @@ All notable changes made to the backend by Member 2 (guptaanuj10) on the `featur
 - **Docker Compose:** Added `docker-compose.yml` to orchestrate both services together.
 - **Testing Suite:** Set up Pytest with `httpx` and `asgi-lifespan` in `backend/tests/test_api.py` to validate API endpoints.
 - **CI Pipeline:** Added GitHub Actions workflow `.github/workflows/ci.yml` for automated frontend builds and backend tests.
+- **Frontend/Backend Compatibility:** 
+  - Configured Vite proxy in `vite.config.ts` to seamlessly route frontend `/api` calls to the FastAPI backend, resolving CORS overhead.
+  - Created a robust frontend API client (`src/api/client.ts`) for Member 1 to easily replace mock data with live database calls.
+- **Final Demo Flow:** Wrote `start-demo.ps1` to automatically validate system requirements, build, and orchestrate the full stack via Docker Compose for flawless demonstrations.
 
 ## [Unreleased] - Initial Backend Setup (Member 2)
 
