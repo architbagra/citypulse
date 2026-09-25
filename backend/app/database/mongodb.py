@@ -24,6 +24,16 @@ class InMemoryCollection:
         self.documents.extend(docs)
         return type("InsertManyResult", (), {"inserted_ids": [d.get("id") for d in docs]})()
 
+    async def update_one(self, filter_dict: dict, update_dict: dict):
+        if "$set" in update_dict:
+            sets = update_dict["$set"]
+            for doc in self.documents:
+                match = all(doc.get(k) == v for k, v in filter_dict.items())
+                if match:
+                    doc.update(sets)
+                    break
+        return type("UpdateResult", (), {"modified_count": 1})()
+
     def find(self, filter_dict: dict = None, projection: dict = None):
         return InMemoryCursor(self.documents)
 
@@ -54,13 +64,13 @@ async def connect_to_mongo():
     from motor.motor_asyncio import AsyncIOMotorClient
     print(f"Connecting to MongoDB at {MONGODB_URL}...")
     try:
-        client = AsyncIOMotorClient(MONGODB_URL, serverSelectionTimeoutMS=1500)
+        client = AsyncIOMotorClient(MONGODB_URL, serverSelectionTimeoutMS=3000)
         # Verify server connection
         await client.admin.command('ping')
         db_instance.client = client
         db_instance.db = client[DATABASE_NAME]
         db_instance.is_mongo_connected = True
-        print("Connected successfully to MongoDB!")
+        print("Connected successfully to MongoDB Atlas!")
     except Exception as e:
         print(f"MongoDB unavailable ({e}). Fallback to In-Memory Database Engine.")
         db_instance.is_mongo_connected = False

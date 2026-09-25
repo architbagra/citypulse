@@ -61,5 +61,23 @@ export const CityPulseAPI = {
     const res = await fetch(`${API_BASE}/feeds/degradation`);
     if (!res.ok) throw new Error('Failed to fetch degradation steps');
     return res.json();
+  },
+
+  explainEvent: async (eventId?: string, zoneId?: string, evidence?: any): Promise<any> => {
+    const res = await fetch(`${API_BASE}/explain`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ eventId, zoneId, evidence })
+    });
+    if (!res.ok) throw new Error('Failed to fetch grounded explanation');
+    return res.json();
+  },
+
+  triggerIngest: async (): Promise<any> => {
+    const res = await fetch(`${API_BASE}/ingest/trigger`, {
+      method: 'POST'
+    });
+    if (!res.ok) throw new Error('Failed to trigger ingest cycle');
+    return res.json();
   }
 };

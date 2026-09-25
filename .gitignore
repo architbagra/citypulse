@@ -23,3 +23,7 @@ Thumbs.db
 # IDE
 .vscode/
 .idea/
+
+# Internal Hackathon Cheat-Sheets & Pitch Scripts (Do NOT upload to GitHub)
+PROJECT_DEEP_DIVE_JUDGES_QA.md
+TEN_MINUTE_PITCH_AND_LIVE_DEMO_SCRIPT.md

@@ -104,10 +104,26 @@ export const CivicMap: React.FC<CivicMapProps> = ({
     if (!mapInstanceRef.current) return;
     mapInstanceRef.current.eachLayer(layer => {
       if (layer instanceof L.TileLayer) {
-        layer.setUrl('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png');
+        const tileContainer = layer.getContainer();
+        if (tileContainer) {
+          if (theme === 'dark') {
+            tileContainer.classList.add('dark-leaflet-tiles');
+            tileContainer.classList.remove('light-leaflet-tiles');
+          } else {
+            tileContainer.classList.remove('dark-leaflet-tiles');
+            tileContainer.classList.add('light-leaflet-tiles');
+          }
+        }
       }
     });
   }, [theme]);
+
+  // Smoothly pan map when selected zone changes
+  useEffect(() => {
+    if (mapInstanceRef.current && selectedZone?.center) {
+      mapInstanceRef.current.panTo(selectedZone.center, { animate: true });
+    }
+  }, [selectedZone]);
 
   // Redraw overlays per design.md mineral palette
   useEffect(() => {
@@ -118,7 +134,7 @@ export const CivicMap: React.FC<CivicMapProps> = ({
     // 1. Hydro Plume Overlay (Analytical periwinkle wash & mineral slate boundary)
     if (mapLayers.hydroPlume) {
       const plumeIntensity = viewMode === 'replay' ? currentReplayMilestone.precip / 50 : 0.85;
-      const plumeCircle = L.circle([26.9142, 75.8080], {
+      const plumeCircle = L.circle([26.9172, 75.8050], {
         radius: 650,
         color: '#7879f1',
         weight: 1.5,
@@ -131,7 +147,7 @@ export const CivicMap: React.FC<CivicMapProps> = ({
       group.addLayer(plumeCircle);
 
       // Core deep ponding
-      const corePond = L.circle([26.9148, 75.8085], {
+      const corePond = L.circle([26.9180, 75.8060], {
         radius: 280,
         color: '#3a4856',
         weight: 1.5,
@@ -195,7 +211,7 @@ export const CivicMap: React.FC<CivicMapProps> = ({
         iconAnchor: [10, 10]
       });
 
-      const conduitMarker = L.marker([26.9138, 75.8072], { icon: conduitIcon });
+      const conduitMarker = L.marker([26.9080, 75.8080], { icon: conduitIcon, zIndexOffset: 500 });
       conduitMarker.bindPopup(`
         <div class="p-2 font-sans text-xs text-[#181d19]">
           <div class="font-bold text-[#182923] font-serif text-sm mb-1">Conduit S-04 · Sub-surface SCADA Node</div>
@@ -210,10 +226,11 @@ export const CivicMap: React.FC<CivicMapProps> = ({
     // 4. 181 Citizen Inundation Dispatches (Pill badges per design.md)
     if (mapLayers.dispatches181) {
       const dispatchPoints = [
-        { lat: 26.9149, lng: 75.8082, calls: 14 },
-        { lat: 26.9125, lng: 75.8048, calls: 9 },
-        { lat: 26.9168, lng: 75.8115, calls: 11 },
-        { lat: 26.9185, lng: 75.8152, calls: 4 }
+        { lat: 26.9195, lng: 75.8090, calls: 14 },
+        { lat: 26.9140, lng: 75.8160, calls: 9 },
+        { lat: 26.9090, lng: 75.8010, calls: 11 },
+        { lat: 26.9220, lng: 75.8210, calls: 4 },
+        { lat: 26.9100, lng: 75.7520, calls: 7 }
       ];
 
       dispatchPoints.forEach(pt => {
@@ -230,7 +247,7 @@ export const CivicMap: React.FC<CivicMapProps> = ({
           iconAnchor: [22, 10]
         });
 
-        const pinMarker = L.marker([pt.lat, pt.lng], { icon: pinIcon });
+        const pinMarker = L.marker([pt.lat, pt.lng], { icon: pinIcon, zIndexOffset: 300 });
         group.addLayer(pinMarker);
       });
     }
@@ -281,7 +298,7 @@ export const CivicMap: React.FC<CivicMapProps> = ({
         iconAnchor: [42, 13]
       });
 
-      const m = L.marker(sec.center, { icon: secIcon });
+      const m = L.marker(sec.center, { icon: secIcon, zIndexOffset: isSelected ? 2000 : 1000 });
       m.on('click', () => {
         setSelectedZoneId(sec.id);
         if (onZoneSelect) onZoneSelect(sec.id);
