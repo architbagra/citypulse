@@ -1,0 +1,45 @@
+graph TB
+    subgraph Frontend ["Frontend UI (React 19 + Vite)"]
+        UI_Live[Live View]
+        UI_Map[Map Explore View]
+        UI_Rel[Relationships View]
+        UI_Replay[Replay View]
+        UI_Sources[Data Sources View]
+        UI_Client[CityPulse API Client]
+    end
+
+    subgraph Backend ["Backend API (FastAPI)"]
+        API_Events["GET/POST /api/events"]
+        API_Zones["GET /api/zones"]
+        API_Feeds["GET /api/feeds"]
+        API_Replay["GET /api/replay"]
+        API_Explain["POST /api/explain"]
+        DB_Layer["Database Adapter (Mongo / In-Memory)"]
+    end
+
+    subgraph Intelligence ["Civic Intelligence Pipeline"]
+        Ingest["Ingestion Adapters"]
+        Norm["Normalizer Module"]
+        Analytics["Anomaly & Spatial Correlation"]
+        LLM["Grounded LLM Generator"]
+    end
+
+    UI_Live --> UI_Client
+    UI_Map --> UI_Client
+    UI_Rel --> UI_Client
+    UI_Replay --> UI_Client
+    UI_Sources --> UI_Client
+
+    UI_Client --> API_Events
+    UI_Client --> API_Zones
+    UI_Client --> API_Feeds
+    UI_Client --> API_Replay
+    UI_Client --> API_Explain
+
+    API_Events --> DB_Layer
+    API_Zones --> DB_Layer
+    API_Feeds --> DB_Layer
+    API_Replay --> DB_Layer
+    API_Explain --> LLM
+
+    Ingest --> Norm --> Analytics --> DB_Layer

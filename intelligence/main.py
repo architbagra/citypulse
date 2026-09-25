@@ -1,5 +1,5 @@
 import time
-from datetime import datetime
+from datetime import datetime, timezone
 from adapters.weather_api import fetch_weather_data
 from adapters.traffic_api import fetch_traffic_data
 from adapters.citizen_reports import fetch_citizen_reports
@@ -10,7 +10,7 @@ from core.feed_health import FeedHealthMonitor
 from database.mongo_client import get_db
 
 def run_engine_cycle(health_monitor):
-    print(f"[{datetime.utcnow().isoformat()}] Starting intelligence cycle...")
+    print(f"[{datetime.now(timezone.utc).isoformat()}] Starting intelligence cycle...")
     
     # 1. Data Ingestion & Adapters
     weather = fetch_weather_data()
@@ -29,9 +29,10 @@ def run_engine_cycle(health_monitor):
     
     # 5. Database Insertion
     if event:
-        print(f"  -> 🚨 ANOMALY DETECTED: {event['severity']}! Inserting CivicEvent into MongoDB.")
+        print(f"  -> 🚨 ANOMALY DETECTED: {event['severity']}! Inserting CivicEvent into Database.")
         db = get_db()
-        db.events.insert_one(event)
+        if hasattr(db, "events"):
+            db.events.insert_one(event)
     else:
         print("  -> System Nominal. No correlation triggers met.")
 
@@ -46,5 +47,4 @@ if __name__ == "__main__":
         except Exception as e:
             print(f"❌ Engine Error: {e}")
             
-        # Run every 10 seconds for demo purposes
         time.sleep(10)

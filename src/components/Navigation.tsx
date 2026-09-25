@@ -38,53 +38,57 @@ export const Navigation: React.FC = () => {
   ];
 
   return (
-    <header className="sticky top-0 z-40 w-full bg-[#182923] text-[#edf2eb] border-b border-[#3a4856]/30 shadow-print transition-colors">
-      <div className="max-w-[1600px] mx-auto px-4 sm:px-6 h-14 flex items-center justify-between gap-4">
+    <header className="sticky top-0 z-50 w-full glass-panel border-b-0 border-white/10 transition-all duration-300">
+      <div className="absolute inset-0 bg-gradient-to-r from-blue-500/5 via-indigo-500/5 to-purple-500/5 pointer-events-none"></div>
+      <div className="max-w-[1600px] mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4 relative">
         {/* Left Zone: Brand and Subtitle */}
-        <div className="flex items-center space-x-3 shrink-0">
-          <div className="flex items-center space-x-2.5">
+        <div className="flex items-center space-x-4 shrink-0">
+          <div className="flex items-center space-x-3">
             <div className="relative flex items-center justify-center">
-              <span className="w-2 h-2 rounded-full bg-[#c25e5e] animate-ping absolute"></span>
-              <span className="w-2 h-2 rounded-full bg-[#c25e5e]"></span>
+              <span className="w-2.5 h-2.5 rounded-full bg-blue-500 animate-ping absolute"></span>
+              <span className="w-2.5 h-2.5 rounded-full bg-blue-400 relative"></span>
             </div>
-            <div className="flex items-baseline space-x-1.5">
-              <span className="font-serif italic font-medium tracking-tight text-xl text-white">
+            <div className="flex items-baseline space-x-2">
+              <span className="font-serif italic font-semibold tracking-tight text-2xl text-foreground text-gradient">
                 CityPulse
               </span>
-              <span className="font-sans text-[10px] tracking-[0.1em] text-[#b7cbc2] uppercase font-semibold">
+              <span className="font-sans text-[10px] tracking-[0.15em] text-muted-foreground uppercase font-bold">
                 INSTITUTE
               </span>
             </div>
           </div>
-          <div className="hidden lg:flex items-center space-x-2 font-sans text-[11px] text-[#b7cbc2] border-l border-[#3a4856]/40 pl-3">
-            <span className="font-semibold tracking-wider">JAIPUR BASIN</span>
-            <span className="text-[#52606f]">·</span>
-            <span>CIVIC CARTOGRAPHY & TELEMETRY</span>
-            <span className="text-[#52606f]">·</span>
-            <span className="text-[#bfa15f] font-mono font-medium">ZONE A REGISTERED</span>
+          <div className="hidden lg:flex items-center space-x-3 font-sans text-[11px] text-muted-foreground border-l border-white/10 pl-4 h-8">
+            <span className="font-bold tracking-wider text-foreground">JAIPUR BASIN</span>
+            <span className="text-white/20">|</span>
+            <span className="font-medium tracking-wide">CIVIC CARTOGRAPHY</span>
+            <span className="text-white/20">|</span>
+            <span className="text-emerald-400 font-mono font-semibold bg-emerald-500/10 px-2 py-0.5 rounded text-[10px]">ZONE A</span>
           </div>
         </div>
 
         {/* Center Zone: Five Navigation Tabs */}
-        <nav className="flex items-center overflow-x-auto py-1 scrollbar-none space-x-1">
+        <nav className="hidden md:flex items-center space-x-2">
           {navItems.map(item => {
             const isActive = viewMode === item.mode;
             return (
               <button
                 key={item.mode}
                 onClick={() => setViewMode(item.mode)}
-                className={`relative px-3 py-1.5 flex items-center space-x-1.5 text-xs font-sans tracking-[0.06em] uppercase transition-all whitespace-nowrap rounded-[0.25rem] ${
+                className={`group relative px-4 py-2 flex items-center space-x-2 text-xs font-sans tracking-[0.08em] uppercase transition-all duration-300 rounded-lg overflow-hidden ${
                   isActive
-                    ? 'text-white bg-[#243b33] font-semibold border border-[#394a44]'
-                    : 'text-[#b7cbc2] hover:text-white hover:bg-[#20342d] border border-transparent'
+                    ? 'text-white font-bold'
+                    : 'text-muted-foreground hover:text-white'
                 }`}
               >
-                <span className={`text-[10px] font-mono ${isActive ? 'text-[#7879f1]' : 'text-[#737875]'}`}>
-                  {item.number} /
-                </span>
-                <span>{item.label}</span>
                 {isActive && (
-                  <span className="absolute bottom-0 left-2 right-2 h-[2px] bg-[#7879f1] rounded-full"></span>
+                  <div className="absolute inset-0 bg-white/10 rounded-lg"></div>
+                )}
+                <span className={`text-[10px] font-mono transition-colors duration-300 ${isActive ? 'text-blue-400' : 'text-muted-foreground group-hover:text-blue-400/70'}`}>
+                  {item.number}
+                </span>
+                <span className="relative z-10">{item.label}</span>
+                {isActive && (
+                  <span className="absolute bottom-0 left-4 right-4 h-[2px] bg-blue-500 rounded-t-md shadow-[0_0_8px_rgba(59,130,246,0.8)]"></span>
                 )}
               </button>
             );
@@ -92,45 +96,44 @@ export const Navigation: React.FC = () => {
         </nav>
 
         {/* Right Zone: Status Chip, Civic Lens & Theme Controls */}
-        <div className="flex items-center space-x-2 shrink-0">
-          {/* Status Chip (pill radius per design.md) */}
-          <div className="hidden xl:flex items-center space-x-1.5 h-6 px-2.5 rounded-full bg-[#ffdad6]/15 border border-[#c25e5e]/40 font-sans text-[10px] tracking-[0.06em] text-[#ffdad6] uppercase font-semibold">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#c25e5e] animate-pulse"></span>
-            <span>CONCORDANCE 89.4%</span>
+        <div className="flex items-center space-x-3 shrink-0">
+          {/* Status Chip */}
+          <div className="hidden xl:flex items-center space-x-2 h-7 px-3 rounded-full bg-blue-500/10 border border-blue-500/20 font-sans text-[10px] tracking-[0.08em] text-blue-400 uppercase font-bold">
+            <span className="w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse"></span>
+            <span>SYSTEM NOMINAL</span>
           </div>
 
           {/* Civic Lens Toggle */}
           <button
             onClick={() => setCivicLensActive(!civicLensActive)}
             title="Toggle Civic Lens reticle inspector"
-            className={`h-7 px-2.5 rounded-full flex items-center space-x-1.5 font-sans text-[11px] tracking-[0.06em] uppercase border transition-all ${
+            className={`h-8 px-3 rounded-md flex items-center space-x-2 font-sans text-[11px] tracking-[0.08em] uppercase transition-all duration-300 ${
               civicLensActive
-                ? 'bg-[#ffffff] text-[#182923] border-[#7879f1] shadow-print font-bold'
-                : 'bg-[#182923] border-[#3a4856]/60 text-[#b7cbc2] hover:text-white hover:border-[#7879f1]/50'
+                ? 'bg-blue-500 text-white font-bold shadow-[0_0_15px_rgba(59,130,246,0.4)]'
+                : 'bg-white/5 border border-white/10 text-muted-foreground hover:bg-white/10 hover:text-white'
             }`}
           >
-            <Crosshair className={`w-3.5 h-3.5 ${civicLensActive ? 'text-[#7879f1]' : 'text-[#b7cbc2]'}`} />
+            <Crosshair className={`w-3.5 h-3.5 ${civicLensActive ? 'text-white' : 'text-muted-foreground'}`} />
             <span className="hidden sm:inline">LENS</span>
-            <span className={`text-[9px] px-1 rounded-full ${civicLensActive ? 'bg-[#7879f1] text-white' : 'text-[#737875]'}`}>
-              {civicLensActive ? 'ON' : 'OFF'}
-            </span>
           </button>
 
-          {/* Theme Toggle */}
+          {/* Theme Toggle (Optional since we default dark, but kept for logic) */}
           <button
             onClick={toggleTheme}
-            aria-label="Toggle dark/light substrate"
-            className="w-7 h-7 rounded-[0.25rem] bg-[#243b33] hover:bg-[#2c473d] border border-[#394a44] text-[#b7cbc2] hover:text-white flex items-center justify-center transition-colors"
+            className="w-8 h-8 rounded-md bg-white/5 hover:bg-white/10 border border-white/10 text-muted-foreground hover:text-white flex items-center justify-center transition-all duration-300"
           >
-            {theme === 'dark' ? <Sun className="w-3.5 h-3.5 text-[#bfa15f]" /> : <Moon className="w-3.5 h-3.5 text-[#b7cbc2]" />}
+            {theme === 'dark' ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-blue-400" />}
           </button>
 
           {/* Live Clock / Benchmark */}
-          <div className="hidden sm:block font-mono text-[11px] text-[#b7cbc2] bg-[#243b33] border border-[#394a44] px-2.5 py-1 rounded-[0.25rem]">
+          <div className="hidden sm:flex items-center font-mono text-[11px] text-white bg-black/40 border border-white/10 px-3 py-1.5 rounded-md shadow-inner">
             {viewMode === 'replay' ? (
-              <span className="text-[#bfa15f]">REPLAY {currentReplayMilestone.time}</span>
+              <span className="text-amber-400 font-semibold flex items-center gap-2">
+                <RotateCcw className="w-3 h-3 animate-spin-slow" /> 
+                {currentReplayMilestone.time}
+              </span>
             ) : (
-              <span>{timeStr}</span>
+              <span className="tracking-wider">{timeStr}</span>
             )}
           </div>
         </div>
