@@ -79,7 +79,7 @@
   @apply bg-white/10 rounded-full hover:bg-white/20 transition-colors;
 }
 
-/* Leaflet map styles: Dark Premium */
+/* Leaflet map styles: Dark & Light Premium */
 .leaflet-container {
   background-color: #09090b !important;
   font-family: var(--font-sans) !important;
@@ -87,6 +87,59 @@
 
 .dark-leaflet-tiles {
   filter: brightness(0.6) invert(1) contrast(3) hue-rotate(200deg) saturate(0.3) opacity(0.8);
+}
+
+.light-leaflet-tiles {
+  filter: none !important;
+}
+
+/* Light Theme Styling Overrides */
+.light {
+  --color-background: hsl(210 20% 98%);
+  --color-foreground: hsl(222.2 84% 4.9%);
+  --color-card: hsl(0 0% 100%);
+  --color-card-foreground: hsl(222.2 84% 4.9%);
+  --color-muted: hsl(210 40% 96.1%);
+  --color-muted-foreground: hsl(215.4 16.3% 40%);
+  --color-border: hsl(214.3 31.8% 88%);
+  color-scheme: light;
+}
+
+.light body {
+  background-color: #f8fafc !important;
+  color: #0f172a !important;
+  background-image: radial-gradient(circle at 50% 0%, rgba(59, 130, 246, 0.08) 0%, transparent 70%) !important;
+}
+
+.light .glass-panel {
+  background-color: rgba(255, 255, 255, 0.9) !important;
+  border-color: rgba(0, 0, 0, 0.1) !important;
+  color: #0f172a !important;
+}
+
+.light .glass-card {
+  background-color: rgba(255, 255, 255, 0.9) !important;
+  border-color: rgba(0, 0, 0, 0.1) !important;
+  color: #0f172a !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06) !important;
+}
+
+.light .glass-card:hover {
+  background-color: #ffffff !important;
+  border-color: rgba(59, 130, 246, 0.3) !important;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1) !important;
+}
+
+.light .text-muted-foreground {
+  color: #475569 !important;
+}
+
+.light .text-foreground {
+  color: #0f172a !important;
+}
+
+.light .leaflet-container {
+  background-color: #e2e8f0 !important;
 }
 
 /* Micro-animations */

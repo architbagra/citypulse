@@ -27,13 +27,33 @@ def analyze_and_correlate(normalized_data):
     if not is_anomaly:
         return None
         
-    explanation = f"Concordance detected across {sum([1 for v in signals.values() if v['value'] > 0])} signals in Sector A."
-    if "SYNTHETIC" in transit_health:
-        explanation += " Note: Public transit metrics are degraded and rely on a synthetic proxy penalty."
-        
     now = datetime.now(timezone.utc)
     event_id = f"JPR-{now.strftime('%Y%m%d-%H%M')}-{uuid.uuid4().hex[:4].upper()}"
-    
+    concordance_val = round(min(precip * 1.5 + (45 - speed) + calls, 99.9), 1)
+
+    evidence = {
+        "precipitation_mm_h": precip,
+        "traffic_speed_km_h": speed,
+        "citizen_calls": calls,
+        "transit_speed_km_h": transit_speed,
+        "time_window": f"{now.strftime('%H:%M')} IST",
+        "concordance_score": concordance_val
+    }
+
+    try:
+        from app.services.llm_explainer import generate_grounded_explanation
+        explanation_res = generate_grounded_explanation(
+            event_id=event_id,
+            zone_name="Zone A — Ashok Nagar & M.I. Road Arterial Corridor",
+            evidence=evidence
+        )
+        explanation = explanation_res.get("explanation")
+    except Exception:
+        explanation = f"Concordance detected across signals in Sector A. Precipitation reached {precip} mm/h (+{round((precip/15.0)*100)}%), traffic speed collapsed to {speed} km/h (-{round((1-speed/32.0)*100)}%), and citizen calls surged to {calls}."
+
+    if "SYNTHETIC" in transit_health:
+        explanation += " Note: Public transit telemetry is degraded and uses a synthetic proxy."
+
     event = {
         "id": event_id,
         "title": f"{severity} CONCORDANCE: WEATHER-RELATED ARTERIAL DISRUPTION",

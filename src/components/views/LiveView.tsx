@@ -35,7 +35,7 @@ export const LiveView: React.FC = () => {
 
   const itemVariants = {
     hidden: { opacity: 0, y: 20 },
-    show: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 300, damping: 24 } }
+    show: { opacity: 1, y: 0, transition: { type: 'spring' as const, stiffness: 300, damping: 24 } }
   };
 
   return (
@@ -72,7 +72,7 @@ export const LiveView: React.FC = () => {
             </h1>
 
             <p className="font-sans text-base text-muted-foreground leading-relaxed max-w-3xl">
-              Simultaneous precipitation surge (48.2 mm/h), arterial velocity collapse (-61%), and citizen dispatch influx (+310%) locked across the M.I. Road drainage corridor.
+              {activeEvent.summary || "Simultaneous multi-stream telemetry lock detected across municipal sensors."}
             </p>
           </div>
 
@@ -96,106 +96,114 @@ export const LiveView: React.FC = () => {
       </motion.div>
 
       {/* 2. Three Stream Telemetry Cards */}
-      <motion.div variants={itemVariants} className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {/* Stream 1: Meteorology */}
-        <div className="glass-card p-6 flex flex-col justify-between group">
-          <div>
-            <div className="flex items-center justify-between text-xs font-sans text-muted-foreground mb-4">
-              <span className="flex items-center space-x-2 font-bold tracking-[0.08em] uppercase text-[10px] text-blue-400">
-                <span className="w-2 h-2 rounded-full bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.8)]"></span>
-                <span>STREAM A · METEOROLOGY</span>
-              </span>
-              <span className="font-mono text-[10px] bg-white/5 px-2 py-0.5 rounded">AWS-04</span>
-            </div>
+      {(() => {
+        const streamPrecip = activeEvent.streams?.find(s => s.id === 'stream-precip' || s.name.includes('Precipitation')) || activeEvent.streams?.[0];
+        const streamVelocity = activeEvent.streams?.find(s => s.id === 'stream-velocity' || s.name.includes('Velocity') || s.name.includes('Mobility')) || activeEvent.streams?.[1];
+        const streamCalls = activeEvent.streams?.find(s => s.id === 'stream-calls' || s.name.includes('181') || s.name.includes('Citizen')) || activeEvent.streams?.[2];
 
-            <div className="space-y-2">
-              <div className="font-serif text-4xl md:text-5xl text-foreground font-medium tracking-tight group-hover:scale-105 transition-transform duration-300 origin-left">
-                48.2 <span className="text-xl font-sans text-muted-foreground font-normal">mm/h</span>
+        return (
+          <motion.div variants={itemVariants} className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {/* Stream 1: Meteorology */}
+            <div className="glass-card p-6 flex flex-col justify-between group">
+              <div>
+                <div className="flex items-center justify-between text-xs font-sans text-muted-foreground mb-4">
+                  <span className="flex items-center space-x-2 font-bold tracking-[0.08em] uppercase text-[10px] text-blue-400">
+                    <span className="w-2 h-2 rounded-full bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.8)]"></span>
+                    <span>STREAM A · {streamPrecip?.name || 'METEOROLOGY'}</span>
+                  </span>
+                  <span className="font-mono text-[10px] bg-white/5 px-2 py-0.5 rounded">{streamPrecip?.sensorCode || 'AWS-04'}</span>
+                </div>
+
+                <div className="space-y-2">
+                  <div className="font-serif text-4xl md:text-5xl text-foreground font-medium tracking-tight group-hover:scale-105 transition-transform duration-300 origin-left">
+                    {streamPrecip?.value || `${selectedZone.precipitation} mm/h`}
+                  </div>
+                  <div className="flex items-center space-x-3 pt-2">
+                    <span className="inline-flex items-center space-x-1 h-6 px-2.5 rounded-full bg-red-500/20 text-red-400 border border-red-500/30 font-sans text-[11px] font-bold">
+                      <ArrowUpRight className="w-3.5 h-3.5" />
+                      <span>{streamPrecip?.delta || '+220%'}</span>
+                    </span>
+                    <span className="text-xs text-muted-foreground font-sans">
+                      vs. Baseline ({streamPrecip?.baseline || '15.0 mm/h'})
+                    </span>
+                  </div>
+                </div>
               </div>
-              <div className="flex items-center space-x-3 pt-2">
-                <span className="inline-flex items-center space-x-1 h-6 px-2.5 rounded-full bg-red-500/20 text-red-400 border border-red-500/30 font-sans text-[11px] font-bold">
-                  <ArrowUpRight className="w-3.5 h-3.5" />
-                  <span>+220%</span>
-                </span>
-                <span className="text-xs text-muted-foreground font-sans">
-                  vs. Baseline (15.0)
-                </span>
-              </div>
-            </div>
-          </div>
 
-          <div className="pt-4 mt-6 border-t border-white/10 text-[11px] font-sans flex items-center justify-between">
-            <span className="text-muted-foreground">Tipping Bucket: Calibrated</span>
-            <span className="text-blue-400 font-semibold flex items-center gap-1"><ShieldCheck className="w-3 h-3"/> 98% Trust</span>
-          </div>
-        </div>
-
-        {/* Stream 2: Velocity */}
-        <div className="glass-card p-6 flex flex-col justify-between group">
-          <div>
-            <div className="flex items-center justify-between text-xs font-sans text-muted-foreground mb-4">
-              <span className="flex items-center space-x-2 font-bold tracking-[0.08em] uppercase text-[10px] text-rose-400">
-                <span className="w-2 h-2 rounded-full bg-rose-500 shadow-[0_0_8px_rgba(244,63,94,0.8)] animate-pulse"></span>
-                <span>STREAM B · MOBILITY</span>
-              </span>
-              <span className="font-mono text-[10px] bg-white/5 px-2 py-0.5 rounded">LOOP D-12</span>
-            </div>
-
-            <div className="space-y-2">
-              <div className="font-serif text-4xl md:text-5xl text-foreground font-medium tracking-tight group-hover:scale-105 transition-transform duration-300 origin-left">
-                6.4 <span className="text-xl font-sans text-muted-foreground font-normal">km/h</span>
-              </div>
-              <div className="flex items-center space-x-3 pt-2">
-                <span className="inline-flex items-center space-x-1 h-6 px-2.5 rounded-full bg-rose-500/20 text-rose-400 border border-rose-500/30 font-sans text-[11px] font-bold">
-                  <ArrowDownRight className="w-3.5 h-3.5" />
-                  <span>-61%</span>
-                </span>
-                <span className="text-xs text-muted-foreground font-sans">
-                  vs. Free-Flow (32)
-                </span>
+              <div className="pt-4 mt-6 border-t border-white/10 text-[11px] font-sans flex items-center justify-between">
+                <span className="text-muted-foreground">{streamPrecip?.subtext || 'Tipping Bucket: Calibrated'}</span>
+                <span className="text-blue-400 font-semibold flex items-center gap-1"><ShieldCheck className="w-3 h-3"/> {streamPrecip ? `${Math.round(streamPrecip.confidence * 100)}% Trust` : '98% Trust'}</span>
               </div>
             </div>
-          </div>
 
-          <div className="pt-4 mt-6 border-t border-white/10 text-[11px] font-sans flex items-center justify-between">
-            <span className="text-muted-foreground">Occupancy: 91.8% (Gridlocked)</span>
-            <span className="text-rose-400 font-semibold flex items-center gap-1"><ShieldCheck className="w-3 h-3"/> 94% Trust</span>
-          </div>
-        </div>
+            {/* Stream 2: Velocity */}
+            <div className="glass-card p-6 flex flex-col justify-between group">
+              <div>
+                <div className="flex items-center justify-between text-xs font-sans text-muted-foreground mb-4">
+                  <span className="flex items-center space-x-2 font-bold tracking-[0.08em] uppercase text-[10px] text-rose-400">
+                    <span className="w-2 h-2 rounded-full bg-rose-500 shadow-[0_0_8px_rgba(244,63,94,0.8)] animate-pulse"></span>
+                    <span>STREAM B · {streamVelocity?.name || 'MOBILITY'}</span>
+                  </span>
+                  <span className="font-mono text-[10px] bg-white/5 px-2 py-0.5 rounded">{streamVelocity?.sensorCode || 'LOOP D-12'}</span>
+                </div>
 
-        {/* Stream 3: Citizen Dispatches */}
-        <div className="glass-card p-6 flex flex-col justify-between group">
-          <div>
-            <div className="flex items-center justify-between text-xs font-sans text-muted-foreground mb-4">
-              <span className="flex items-center space-x-2 font-bold tracking-[0.08em] uppercase text-[10px] text-amber-400">
-                <span className="w-2 h-2 rounded-full bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.8)]"></span>
-                <span>STREAM C · CITIZEN DISPATCHES</span>
-              </span>
-              <span className="font-mono text-[10px] bg-white/5 px-2 py-0.5 rounded">SAMPARK 181</span>
+                <div className="space-y-2">
+                  <div className="font-serif text-4xl md:text-5xl text-foreground font-medium tracking-tight group-hover:scale-105 transition-transform duration-300 origin-left">
+                    {streamVelocity?.value || `${selectedZone.trafficSpeed} km/h`}
+                  </div>
+                  <div className="flex items-center space-x-3 pt-2">
+                    <span className="inline-flex items-center space-x-1 h-6 px-2.5 rounded-full bg-rose-500/20 text-rose-400 border border-rose-500/30 font-sans text-[11px] font-bold">
+                      <ArrowDownRight className="w-3.5 h-3.5" />
+                      <span>{streamVelocity?.delta || '-61%'}</span>
+                    </span>
+                    <span className="text-xs text-muted-foreground font-sans">
+                      vs. Free-Flow ({streamVelocity?.baseline || '32 km/h'})
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="pt-4 mt-6 border-t border-white/10 text-[11px] font-sans flex items-center justify-between">
+                <span className="text-muted-foreground">{streamVelocity?.subtext || 'Occupancy: Gridlocked'}</span>
+                <span className="text-rose-400 font-semibold flex items-center gap-1"><ShieldCheck className="w-3 h-3"/> {streamVelocity ? `${Math.round(streamVelocity.confidence * 100)}% Trust` : '94% Trust'}</span>
+              </div>
             </div>
 
-            <div className="space-y-2">
-              <div className="font-serif text-4xl md:text-5xl text-foreground font-medium tracking-tight group-hover:scale-105 transition-transform duration-300 origin-left">
-                38 <span className="text-xl font-sans text-muted-foreground font-normal">calls</span>
+            {/* Stream 3: Citizen Dispatches */}
+            <div className="glass-card p-6 flex flex-col justify-between group">
+              <div>
+                <div className="flex items-center justify-between text-xs font-sans text-muted-foreground mb-4">
+                  <span className="flex items-center space-x-2 font-bold tracking-[0.08em] uppercase text-[10px] text-amber-400">
+                    <span className="w-2 h-2 rounded-full bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.8)]"></span>
+                    <span>STREAM C · {streamCalls?.name || 'CITIZEN DISPATCHES'}</span>
+                  </span>
+                  <span className="font-mono text-[10px] bg-white/5 px-2 py-0.5 rounded">{streamCalls?.sensorCode || 'SAMPARK 181'}</span>
+                </div>
+
+                <div className="space-y-2">
+                  <div className="font-serif text-4xl md:text-5xl text-foreground font-medium tracking-tight group-hover:scale-105 transition-transform duration-300 origin-left">
+                    {streamCalls?.value || `${selectedZone.dispatchCalls} calls`}
+                  </div>
+                  <div className="flex items-center space-x-3 pt-2">
+                    <span className="inline-flex items-center space-x-1 h-6 px-2.5 rounded-full bg-amber-500/20 text-amber-400 border border-amber-500/30 font-sans text-[11px] font-bold">
+                      <ArrowUpRight className="w-3.5 h-3.5" />
+                      <span>{streamCalls?.delta || '+310%'}</span>
+                    </span>
+                    <span className="text-xs text-muted-foreground font-sans">
+                      {streamCalls?.subtext || 'Waterlogging Dispatches'}
+                    </span>
+                  </div>
+                </div>
               </div>
-              <div className="flex items-center space-x-3 pt-2">
-                <span className="inline-flex items-center space-x-1 h-6 px-2.5 rounded-full bg-amber-500/20 text-amber-400 border border-amber-500/30 font-sans text-[11px] font-bold">
-                  <ArrowUpRight className="w-3.5 h-3.5" />
-                  <span>+310%</span>
-                </span>
-                <span className="text-xs text-muted-foreground font-sans">
-                  Waterlogging & Stalls
-                </span>
+
+              <div className="pt-4 mt-6 border-t border-white/10 text-[11px] font-sans flex items-center justify-between">
+                <span className="text-muted-foreground">Cluster Radius: 250m</span>
+                <span className="text-amber-400 font-semibold flex items-center gap-1"><ShieldCheck className="w-3 h-3"/> {streamCalls ? `${Math.round(streamCalls.confidence * 100)}% Trust` : '91% Trust'}</span>
               </div>
             </div>
-          </div>
-
-          <div className="pt-4 mt-6 border-t border-white/10 text-[11px] font-sans flex items-center justify-between">
-            <span className="text-muted-foreground">Cluster Radius: 250m</span>
-            <span className="text-amber-400 font-semibold flex items-center gap-1"><ShieldCheck className="w-3 h-3"/> 91% Trust</span>
-          </div>
-        </div>
-      </motion.div>
+          </motion.div>
+        );
+      })()}
 
       {/* 3. Spatial Observation Deck & Convergence Dynamics */}
       <motion.div variants={itemVariants} className="grid grid-cols-1 lg:grid-cols-12 gap-6">

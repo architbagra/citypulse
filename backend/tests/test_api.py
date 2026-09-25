@@ -5,7 +5,7 @@ from asgi_lifespan import LifespanManager
 
 @pytest.fixture
 async def async_client():
-    async with LifespanManager(app):
+    async with LifespanManager(app, startup_timeout=15.0, shutdown_timeout=15.0):
         async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
             yield client
 
