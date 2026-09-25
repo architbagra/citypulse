@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 
 def normalize_telemetry(weather_raw, traffic_raw, citizen_raw, transit_raw):
     """
@@ -6,7 +6,7 @@ def normalize_telemetry(weather_raw, traffic_raw, citizen_raw, transit_raw):
     Standardizes timestamps, units, and nested JSON structures from disparate adapters
     into a common canonical schema for the correlation engine.
     """
-    timestamp = datetime.utcnow().isoformat()
+    timestamp = datetime.now(timezone.utc).isoformat()
     
     normalized = {
         "timestamp": timestamp,

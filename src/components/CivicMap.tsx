@@ -50,14 +50,12 @@ export const CivicMap: React.FC<CivicMapProps> = ({
       attributionControl: false
     });
 
-    const isLight = theme === 'light';
-    const tileUrl = isLight
-      ? 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png'
-      : 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png';
+    const tileUrl = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
 
     L.tileLayer(tileUrl, {
       maxZoom: 18,
-      subdomains: 'abcd'
+      className: 'dark-leaflet-tiles',
+      attribution: '&copy; OpenStreetMap contributors'
     }).addTo(map);
 
     const layerGroup = L.layerGroup().addTo(map);
@@ -106,11 +104,7 @@ export const CivicMap: React.FC<CivicMapProps> = ({
     if (!mapInstanceRef.current) return;
     mapInstanceRef.current.eachLayer(layer => {
       if (layer instanceof L.TileLayer) {
-        const isLight = theme === 'light';
-        const tileUrl = isLight
-          ? 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png'
-          : 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png';
-        layer.setUrl(tileUrl);
+        layer.setUrl('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png');
       }
     });
   }, [theme]);

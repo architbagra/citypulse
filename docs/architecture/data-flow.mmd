@@ -1,0 +1,32 @@
+sequenceDiagram
+    autonumber
+    participant Weather as Weather Sensor AWS-04
+    participant Loop as Induction Loop D-12
+    participant Sampark as 181 Citizen Calls
+    participant Ingest as Ingestion Adapters
+    participant Engine as Intelligence Engine
+    participant DB as DB / In-Memory Store
+    participant API as FastAPI Backend
+    participant LLM as Grounded LLM Explainer
+    participant UI as React Dashboard
+
+    Weather->>Ingest: Raw Precipitation Payload (48.2 mm/h)
+    Loop->>Ingest: Raw Speed Payload (6.4 km/h)
+    Sampark->>Ingest: Raw Incident Count (38 calls)
+    
+    Ingest->>Engine: Normalized Observations Schema
+    Engine->>Engine: Calculate Baselines & Detect Z-Score Anomalies
+    Engine->>Engine: Spatial (Zone A) & Temporal Correlation (15m window)
+    Engine->>Engine: Generate Civic Event (Concordance 89.4%)
+    
+    Engine->>DB: Store Civic Event & Update Zone State
+    
+    UI->>API: GET /api/events
+    API->>DB: Query Active Events
+    DB-->>API: Return Active Civic Event JSON
+    API-->>UI: Civic Event Response
+    
+    UI->>API: POST /api/explain { event_id }
+    API->>LLM: Generate Grounded Explanation (Evidence Input)
+    LLM-->>API: Explanation Summary
+    API-->>UI: Plain-Language Explanation Response

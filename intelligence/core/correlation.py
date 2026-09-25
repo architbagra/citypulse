@@ -1,5 +1,5 @@
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 
 def analyze_and_correlate(normalized_data):
     """
@@ -14,10 +14,6 @@ def analyze_and_correlate(normalized_data):
     transit_speed = signals["transit_speed"]["value"]
     transit_health = signals["transit_speed"]["health"]
     
-    # 1. Temporal Correlation Check (are the signals happening concurrently?)
-    # 2. Spatial Correlation Check (are they in the same grid/sector?)
-    # (Since this is simulated, we assume they belong to Sector A - Ashok Nagar).
-    
     is_anomaly = False
     severity = "NOMINAL"
     
@@ -31,12 +27,12 @@ def analyze_and_correlate(normalized_data):
     if not is_anomaly:
         return None
         
-    # Evidence / Explanation Generation
     explanation = f"Concordance detected across {sum([1 for v in signals.values() if v['value'] > 0])} signals in Sector A."
     if "SYNTHETIC" in transit_health:
         explanation += " Note: Public transit metrics are degraded and rely on a synthetic proxy penalty."
         
-    event_id = f"JPR-{datetime.utcnow().strftime('%Y%m%d-%H%M')}-{uuid.uuid4().hex[:4].upper()}"
+    now = datetime.now(timezone.utc)
+    event_id = f"JPR-{now.strftime('%Y%m%d-%H%M')}-{uuid.uuid4().hex[:4].upper()}"
     
     event = {
         "id": event_id,
@@ -45,7 +41,7 @@ def analyze_and_correlate(normalized_data):
         "zoneId": "sector-a",
         "zoneName": "Zone A — Ashok Nagar & M.I. Road Arterial Corridor",
         "severity": severity,
-        "declaredAt": datetime.utcnow().strftime("%H:%M:%S IST"),
+        "declaredAt": now.strftime("%H:%M:%S IST"),
         "durationMinutes": 0,
         "concordanceScore": round(min(precip * 1.5 + (45 - speed) + calls, 99.9), 1),
         "persistenceMinutes": 0,
